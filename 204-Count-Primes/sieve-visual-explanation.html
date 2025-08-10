@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Sieve of Eratosthenes Animation</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+  }
+  #controls {
+    margin-bottom: 10px;
+  }
+  button, input {
+    margin: 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+    max-width: 420px;
+    margin: 15px auto;
+    grid-gap: 5px;
+  }
+  .cell {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #333;
+    border-radius: 5px;
+    font-weight: bold;
+    color: #fff;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .prime {
+    background: #28a745; /* green */
+  }
+  .composite {
+    background: #dc3545; /* red */
+  }
+  .current {
+    background: #ffc107; /* yellow */
+    transform: scale(1.1);
+  }
+  .checking {
+    background: #17a2b8; /* blue */
+  }
+  #legend {
+    max-width: 420px;
+    margin: 10px auto 25px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 14px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #fff;
+  }
+  .prime-color { background: #28a745; }
+  .composite-color { background: #dc3545; }
+  .current-color { background: #ffc107; }
+  .checking-color { background: #17a2b8; }
+</style>
+</head>
+<body>
+
+<h1>Sieve of Eratosthenes</h1>
+
+<div id="legend">
+  <div class="legend-item"><div class="legend-color prime-color"></div>Prime</div>
+  <div class="legend-item"><div class="legend-color composite-color"></div>Composite</div>
+  <div class="legend-item"><div class="legend-color current-color"></div>Current Prime</div>
+  <div class="legend-item"><div class="legend-color checking-color"></div>Checking Multiple</div>
+</div>
+
+<div id="controls">
+  <label>Limit: <input type="number" id="limit" value="50" min="2" style="width:70px;"></label>
+  <button onclick="startSieve()">Start</button>
+  <button onclick="stopSieve()">Stop</button>
+  <button onclick="resetSieve()">Reset</button>
+  <label>Speed: <input type="range" id="speed" min="300" max="2000" value="1000"></label>
+</div>
+
+<div id="grid"></div>
+
+<script>
+  let n = 50;
+  let grid = document.getElementById("grid");
+  let numbers = [];
+  let isPrime = [];
+  let currentIndex = 2;
+  let intervalId = null;
+  let multipleList = [];
+  let multipleIndex = 0;
+  let running = false;
+
+  function getSpeed() {
+    const slider = document.getElementById("speed");
+    const min = parseInt(slider.min);
+    const max = parseInt(slider.max);
+    const val = parseInt(slider.value);
+    return max - (val - min); // invert slider for intuitive control
+  }
+
+  function createGrid() {
+    grid.innerHTML = "";
+    numbers = [];
+    isPrime = new Array(n + 1).fill(true);
+    isPrime[0] = false;
+    isPrime[1] = false;
+    for (let i = 0; i <= n; i++) {
+      let cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.textContent = i;
+      grid.appendChild(cell);
+      numbers.push(cell);
+    }
+  }
+
+  function startSieve() {
+    if (running) return;
+    running = true;
+    processNextPrime();
+  }
+
+  function stopSieve() {
+    running = false;
+    clearTimeout(intervalId);
+    // Clear highlight classes when stopped
+    numbers.forEach(cell => {
+      cell.classList.remove("checking");
+      cell.classList.remove("current");
+    });
+  }
+
+  function resetSieve() {
+    stopSieve();
+    currentIndex = 2;
+    multipleList = [];
+    multipleIndex = 0;
+    let userLimit = parseInt(document.getElementById("limit").value);
+    if (isNaN(userLimit) || userLimit < 2) {
+      alert("Please enter a number ≥ 2");
+      return;
+    }
+    n = userLimit;
+    createGrid();
+  }
+
+  function processNextPrime() {
+    while (currentIndex <= n && !isPrime[currentIndex]) {
+      currentIndex++;
+    }
+    if (currentIndex > Math.sqrt(n)) {
+      // Remove all checking/current highlights at end
+      numbers.forEach(cell => {
+        cell.classList.remove("checking");
+        cell.classList.remove("current");
+      });
+      markPrimes();
+      running = false;
+      return;
+    }
+
+    numbers.forEach(cell => cell.classList.remove("current"));
+    numbers[currentIndex].classList.add("current");
+
+    multipleList = [];
+    for (let multiple = currentIndex * currentIndex; multiple <= n; multiple += currentIndex) {
+      multipleList.push(multiple);
+    }
+    multipleIndex = 0;
+
+    markNextMultiple();
+  }
+
+  function markNextMultiple() {
+    if (!running) return;
+    numbers.forEach(cell => cell.classList.remove("checking"));
+
+    if (multipleIndex >= multipleList.length) {
+      currentIndex++;
+      processNextPrime();
+      return;
+    }
+
+    let m = multipleList[multipleIndex];
+    numbers[m].classList.add("checking");
+
+    if (isPrime[m]) {
+      isPrime[m] = false;
+      setTimeout(() => {
+        numbers[m].classList.remove("checking");
+        numbers[m].classList.add("composite");
+        multipleIndex++;
+        intervalId = setTimeout(markNextMultiple, getSpeed());
+      }, getSpeed() / 2);
+    } else {
+      multipleIndex++;
+      intervalId = setTimeout(markNextMultiple, getSpeed());
+    }
+  }
+
+  function markPrimes() {
+    for (let i = 2; i <= n; i++) {
+      if (isPrime[i]) {
+        numbers[i].classList.add("prime");
+      }
+    }
+  }
+
+  createGrid();
+</script>
+
+</body>
+</html>

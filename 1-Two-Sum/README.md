@@ -130,11 +130,15 @@ flowchart TD
 
 ### 📊 **Complexity Comparison**
 | Approach        | Time Complexity | Space Complexity |
-|-----------------|----------------|------------------|
-| Brute Force     | O(n²)         | O(1)            |
-| Hash Map        | O(n)          | O(n)            |
-| Two Pointers    | O(n log n)    | O(n)            |
+|-----------------|----------------|-----------------|
+| Brute Force     | O(n²)           | O(1)            |
+| Hash Map        | O(n)            | O(n)            |
+| Two Pointers    | O(n log n)      | O(n)            |
 
+✅ Notes:  
+- `O(n²)` → quadratic  
+- `O(n)` → linear  
+- `O(n log n)` → linearithmic  
 ---
 
 ### ✅ **Edge Cases**

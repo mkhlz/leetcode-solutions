@@ -32,6 +32,121 @@ We are given:
 - A target integer `target`
 
 We need to **return indices of two numbers such that their sum equals `target`**.  
+
+**Example Dry Run:**  
+```
+nums = [2, 7, 11, 15], target = 9
+Check pairs:
+2 + 7 = 9 ✅ → return [0, 1]
+```
+
+---
+
+### ⚠ **Constraints**
+- `2 <= nums.length <= 10^4`
+- `-10^9 <= nums[i], target <= 10^9`
+- Exactly **one solution** exists.
+
+---
+
+### ✅ **Approach 1: Brute Force (O(n²))**
+**Idea:**  
+Check every possible pair `(i, j)` and see if `nums[i] + nums[j] == target`.  
+
+**Steps:**
+1. Loop through each index `i`.
+2. For each `i`, loop through `j > i`.
+3. If the sum matches the target → return `[i, j]`.
+
+**Why it works:**  
+It literally checks all possibilities, so it’s guaranteed to find the solution.  
+**Drawback:** For `n = 10^4`, ~50 million comparisons → **too slow**.  
+
+---
+
+### ✅ **Approach 2: Hash Map (Optimal) (O(n))**
+**Idea:**  
+Store seen numbers in a hash map and check if the complement exists.  
+
+**Steps:**
+1. Initialize an empty map.
+2. For each `num` in `nums`:
+   - Calculate `complement = target - num`.
+   - If `complement` in map → return `[map[complement], i]`.
+   - Else add `num` to map.
+
+**Why it works:**  
+Lookup in a hash map is **O(1)** on average, so one pass is enough.
+
+#### 📈 **Flowchart (Hash Map Logic)**  
+```mermaid
+flowchart TD
+    A[Start] --> B[Initialize empty HashMap]
+    B --> C[For each num in nums]
+    C --> D{Is target - num in map?}
+    D -->|Yes| E[Return [map[target - num], index]]
+    D -->|No| F[Add num:index to map]
+    F --> C
+    E --> G[End]
+```
+
+---
+
+### ✅ **Approach 3: Two Pointers (O(n log n))**
+**Idea:**  
+Sort the array and use two pointers:
+- Start at both ends, move inward based on sum.
+
+**Steps:**
+1. Pair each element with its index.
+2. Sort the pairs by value.
+3. Initialize two pointers: `left = 0`, `right = n-1`.
+4. While `left < right`:
+   - If sum == target → return original indices.
+   - If sum < target → move `left`.
+   - Else move `right`.
+
+**Challenge:** Sorting loses original indices, so we store pairs.
+
+#### 📈 **Flowchart (Two-Pointer Logic)**  
+```mermaid
+flowchart TD
+    A[Start] --> B[Sort nums with original indices]
+    B --> C[left = 0, right = n-1]
+    C --> D{left < right?}
+    D -->|No| E[End]
+    D -->|Yes| F[sum = nums[left] + nums[right]]
+    F --> G{sum == target?}
+    G -->|Yes| H[Return original indices]
+    G -->|No| I{sum < target?}
+    I -->|Yes| J[left++]
+    I -->|No| K[right--]
+    J --> C
+    K --> C
+```
+
+---
+
+### 📊 **Complexity Comparison**
+| Approach        | Time Complexity | Space Complexity |
+|-----------------|----------------|------------------|
+| Brute Force     | O(n²)         | O(1)            |
+| Hash Map        | O(n)          | O(n)            |
+| Two Pointers    | O(n log n)    | O(n)            |
+
+---
+
+### ✅ **Edge Cases**
+- Smallest case: `nums = [1, 2], target = 3`
+- Negative numbers: `nums = [-1, -2, -3, -4, -5], target = -8`
+- Large numbers: `nums = [10^9, 10^9], target = 2*10^9`
+
+### 🔍 **Understanding the Problem**
+We are given:
+- An array of integers `nums`
+- A target integer `target`
+
+We need to **return indices of two numbers such that their sum equals `target`**.  
 Important:
 - There is **exactly one valid solution**.
 - We **cannot reuse the same element** twice.

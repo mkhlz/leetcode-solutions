@@ -81,13 +81,14 @@ Lookup in a hash map is **O(1)** on average, so one pass is enough.
 #### 📈 **Flowchart (Hash Map Logic)**  
 ```mermaid
 flowchart TD
-    A[Start] --> B[Initialize empty HashMap]
-    B --> C[For each num in nums]
-    C --> D{Is complement (target - num) in map?}
-    D -->|Yes| E[Return indices]
-    D -->|No| F[Add num:index to map]
-    F --> C
-    E --> G[End]
+    A([Start]) --> B[Initialize empty HashMap]
+    B --> C[Loop over each index i in nums]
+    C --> D[complement = target - nums[i]]
+    D --> E{complement in HashMap?}
+    E -->|Yes| F([Return [HashMap[complement], i]])
+    E -->|No| G[Store nums[i] -> i in HashMap]
+    G --> C
+    F --> H([End])
 ```
 
 ---
@@ -111,13 +112,13 @@ Sort the array and use two pointers:
 #### 📈 **Flowchart (Two-Pointer Logic)**  
 ```mermaid
 flowchart TD
-    A[Start] --> B[Sort nums with original indices]
-    B --> C[left = 0, right = n-1]
+    A([Start]) --> B[Sort nums with original indices]
+    B --> C[Initialize left = 0, right = n-1]
     C --> D{left < right?}
-    D -->|No| E[End]
-    D -->|Yes| F[sum = nums[left] + nums[right]]
+    D -->|No| E([End])
+    D -->|Yes| F[Compute sum = num_left + num_right]
     F --> G{sum == target?}
-    G -->|Yes| H[Return original indices]
+    G -->|Yes| H([Return original indices])
     G -->|No| I{sum < target?}
     I -->|Yes| J[left++]
     I -->|No| K[right--]

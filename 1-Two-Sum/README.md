@@ -56,11 +56,26 @@ Check every possible pair `(i, j)` and see if `nums[i] + nums[j] == target`.
 **Steps:**
 1. Loop through each index `i`.
 2. For each `i`, loop through `j > i`.
-3. If the sum matches the target → return `[i, j]`.
+3. If the sum matches the target → return indices `i` and `j`.
 
 **Why it works:**  
 It literally checks all possibilities, so it’s guaranteed to find the solution.  
-**Drawback:** For `n = 10^4`, ~50 million comparisons → **too slow**.  
+
+**Drawback:**  
+For `n = 10^4`, ~50 million comparisons → **too slow**.  
+
+**📈 Flowchart (Brute Force Approach)**
+
+```mermaid
+flowchart TD
+    A([Start]) --> B[Loop over each index i in nums]
+    B --> C[Loop over each index j > i]
+    C --> D{Does nums[i] + nums[j] == target?}
+    D -->|Yes| E[Return indices i and j]
+    D -->|No| F[Continue inner loop]
+    F --> C
+    C --> B
+    B --> G([End])
 
 ---
 

@@ -83,10 +83,10 @@ Lookup in a hash map is **O(1)** on average, so one pass is enough.
 flowchart TD
     A([Start]) --> B[Initialize empty HashMap]
     B --> C[Loop over each index i in nums]
-    C --> D[complement = target - nums[i]]
-    D --> E{complement in HashMap?}
-    E -->|Yes| F([Return [HashMap[complement], i]])
-    E -->|No| G[Store nums[i] -> i in HashMap]
+    C --> D[Compute complement = target - num]
+    D --> E{Complement exists in map?}
+    E -->|Yes| F[Return indices from map and current index]
+    E -->|No| G[Store num -> i in HashMap]
     G --> C
     F --> H([End])
 ```

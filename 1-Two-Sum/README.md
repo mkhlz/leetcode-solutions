@@ -83,8 +83,8 @@ Lookup in a hash map is **O(1)** on average, so one pass is enough.
 flowchart TD
     A[Start] --> B[Initialize empty HashMap]
     B --> C[For each num in nums]
-    C --> D{Is target - num in map?}
-    D -->|Yes| E[Return [map[target - num], index]]
+    C --> D{Is complement (target - num) in map?}
+    D -->|Yes| E[Return indices]
     D -->|No| F[Add num:index to map]
     F --> C
     E --> G[End]

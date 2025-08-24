@@ -56,26 +56,12 @@ Check every possible pair `(i, j)` and see if `nums[i] + nums[j] == target`.
 **Steps:**
 1. Loop through each index `i`.
 2. For each `i`, loop through `j > i`.
-3. If the sum matches the target → return indices `i` and `j`.
+3. If the sum matches the target → return `[i, j]`.
 
 **Why it works:**  
 It literally checks all possibilities, so it’s guaranteed to find the solution.  
+**Drawback:** For `n = 10^4`, ~50 million comparisons → **too slow**.  
 
-**Drawback:**  
-For `n = 10^4`, ~50 million comparisons → **too slow**.  
-
-**📈 Flowchart (Brute Force Approach)**
-
-```mermaid
-flowchart TD
-    A([Start]) --> B[Loop over each index i in nums]
-    B --> C[Loop over each index j greater than i]
-    C --> D{Does current pair sum equal target?}
-    D -->|Yes| E[Return current indices]
-    D -->|No| F[Continue inner loop]
-    F --> C
-    C --> B
-    B --> G([End])
 ---
 
 ### ✅ **Approach 2: Hash Map (Optimal) (O(n))**
@@ -95,12 +81,12 @@ Lookup in a hash map is **O(1)** on average, so one pass is enough.
 #### 📈 **Flowchart (Hash Map Logic)**  
 ```mermaid
 flowchart TD
-    A([Start]) --> B[Initialize empty hash map]
-    B --> C[Loop over each index in nums]
-    C --> D[Compute complement as target minus current number]
-    D --> E{Does complement exist in hash map?}
-    E -->|Yes| F[Return indices from hash map and current index]
-    E -->|No| G[Store current number and its index in hash map]
+    A([Start]) --> B[Initialize empty HashMap]
+    B --> C[Loop over each index i in nums]
+    C --> D[Compute complement = target - num]
+    D --> E{Complement exists in map?}
+    E -->|Yes| F[Return indices from map and current index]
+    E -->|No| G[Store num -> i in HashMap]
     G --> C
     F --> H([End])
 ```
@@ -126,16 +112,16 @@ Sort the array and use two pointers:
 #### 📈 **Flowchart (Two-Pointer Logic)**  
 ```mermaid
 flowchart TD
-    A([Start]) --> B[Sort numbers with original indices]
-    B --> C[Initialize left pointer at start and right pointer at end]
-    C --> D{Is left pointer less than right pointer?}
+    A([Start]) --> B[Sort nums with original indices]
+    B --> C[Initialize left = 0, right = n-1]
+    C --> D{left < right?}
     D -->|No| E([End])
-    D -->|Yes| F[Compute sum of numbers at left and right pointers]
-    F --> G{Does sum equal target?}
-    G -->|Yes| H[Return original indices of left and right]
-    G -->|No| I{Is sum less than target?}
-    I -->|Yes| J[Move left pointer one step right]
-    I -->|No| K[Move right pointer one step left]
+    D -->|Yes| F[Compute sum = num_left + num_right]
+    F --> G{sum == target?}
+    G -->|Yes| H([Return original indices])
+    G -->|No| I{sum < target?}
+    I -->|Yes| J[left++]
+    I -->|No| K[right--]
     J --> C
     K --> C
 ```

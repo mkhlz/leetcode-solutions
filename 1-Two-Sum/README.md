@@ -96,14 +96,14 @@ Lookup in a hash map is **O(1)** on average, so one pass is enough.
 #### 📈 **Flowchart (Hash Map Logic)**  
 ```mermaid
 flowchart TD
-    A([Start]) --> B[Initialize empty HashMap]
-    B --> C[Loop over each index i in nums]
-    C --> D[Compute complement = target - num]
-    D --> E{Complement exists in map?}
-    E -->|Yes| F[Return indices from map and current index]
-    E -->|No| G[Store num -> i in HashMap]
-    G --> C
-    F --> H([End])
+    A([Start]) --> B[Loop over each index i in nums]
+    B --> C[Loop over each index j greater than i]
+    C --> D{Does current pair sum equal target?}
+    D -->|Yes| E[Return current indices]
+    D -->|No| F[Continue inner loop]
+    F --> C
+    C --> B
+    B --> G([End])
 ```
 
 ---

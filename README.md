@@ -1,13 +1,42 @@
-Here you will find solutions to Leetcode problems. Most problems are solved in C++. 
+# 🏆 LeetCode Solutions Repository  
+ 
+This repo contains **detailed explanations, approaches, and multiple language implementations** for popular LeetCode problems.  
+Each problem has its **own folder** with a dedicated `README.md` explaining solutions in different languages and approaches.
 
+---
 
-How to run C++ programs on Windows, Linux or Mac OS?
+## 📂 Repository Structure  
+```
+/ (root)
+├── 1-Two-Sum/
+│     └── README.md   # Two Sum Problem details
+└── README.md         # This index file
+```
 
-Windows
+---
 
-Step 1 -- Get the GCC compiler
-Step 2 --
+## ✅ Problem Index  
 
-Linux
+| #  | Problem | Difficulty | Folder |
+|----|----------|------------|--------|
+| 1  | [Two Sum](1-Two-Sum/README.md) | 🟢 Easy | [1-Two-Sum](1-Two-Sum) |
 
-Mac OS
+---
+
+## 📚 How to Use  
+- Navigate to the **problem folder** and open `README.md` for full details.
+- Each problem includes:
+  - ✅ **Problem Statement**
+  - ✅ **Examples**
+  - ✅ **Explanations & Approaches**
+  - ✅ **Solutions in multiple languages**
+
+---
+
+## ⭐ Contributions & Support  
+If you find this helpful:
+- ⭐ **Star the repository** to support the project
+- 🔗 Share with your friends preparing for coding interviews
+- 📝 Contribute by adding more problems and solutions  
+
+---

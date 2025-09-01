@@ -19,7 +19,7 @@ Each problem has its **own folder** with a dedicated `README.md` explaining solu
 
 | #  | Problem | Difficulty | Folder |
 |----|----------|------------|--------|
-| 1  | [Two Sum](1-Two-Sum/README.md) | 🟢 Easy | [1-Two-Sum](1-Two-Sum) |
+| 1  | [Two Sum](0001-Two-Sum/README.md) | 🟢 Easy | [1-Two-Sum](0001-Two-Sum) |
 
 ---
 

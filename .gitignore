@@ -1,0 +1,35 @@
+# Byte-compiled / object files
+*.pyc
+*.pyo
+*.pyd
+*.class
+*.o
+*.obj
+*.exe
+*.out
+*.dll
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Temporary / swap files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Backup files
+*.bak
+*.tmp
+
+# IDE / editor specific
+.vscode/
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# Compiled C/C++ files
+*.exe*

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Set the character encoding so text renders correctly -->
+    <meta charset="UTF-8" />
+    <!-- Make the page responsive on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Page title shown in the browser tab -->
+    <title>Merge Two Sorted Lists - Visual Step-by-Step</title>
+    <!-- Basic, minimal styles to keep the demo clean and readable -->
+    <style>
+      /* Apply a simple, readable font to the whole page */
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+      /* Constrain the width for nicer reading */
+      .container { max-width: 1000px; margin: 0 auto; }
+      /* Title styling */
+      h1 { margin: 0 0 8px; font-size: 24px; }
+      /* Smaller subtitle text */
+      p { margin: 6px 0 16px; color: #444; }
+
+      /* Layout for the three lanes: list A, list B, and merged list */
+      .lane { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 12px; min-height: 82px; }
+      /* Label at the start of each lane */
+      .label { font-weight: 600; min-width: 90px; }
+
+      /* A single list node (box) */
+      .node { position: relative; padding: 12px 16px; border: 2px solid #888; border-radius: 12px; min-width: 32px; text-align: center; font-weight: 700; background: #fff; transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease; }
+      /* Visual arrow that hints the next pointer to the right */
+      .node::after { content: "→"; position: absolute; right: -18px; top: 50%; transform: translateY(-50%); font-weight: 700; }
+      /* Hide arrow on the last node of a lane */
+      .lane .node:last-child::after { content: ""; }
+
+      /* Highlight color when two nodes are being compared */
+      .highlight { border-color: #1e88e5; box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.15); }
+      /* Dim nodes that are not active */
+      .dim { opacity: 0.55; }
+
+      /* Simple control bar layout */
+      .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 18px; }
+      /* Button baseline styles */
+      button { padding: 10px 14px; border-radius: 10px; border: 1px solid #bbb; background: #fafafa; cursor: pointer; font-weight: 600; }
+      /* Button hover effect */
+      button:hover { background: #f0f0f0; }
+      /* Disabled button appearance */
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+      /* Input boxes for editing the arrays */
+      .inputs { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+      input[type="text"] { padding: 8px 10px; border-radius: 8px; border: 1px solid #bbb; min-width: 260px; }
+
+      /* A tiny note style */
+      .note { font-size: 12px; color: #666; }
+    </style>
+  </head>
+  <body>
+    <!-- Main wrapper for all content -->
+    <div class="container">
+      <!-- Main heading for the demo -->
+      <h1>Merge Two Sorted Lists — Step-by-Step Animation</h1>
+      <!-- Short description of how to use the tool -->
+      <p>Click <strong>Next</strong> to merge the two sorted lists like LeetCode #21. You can also <strong>edit the inputs</strong> and hit <strong>Load</strong>.</p>
+
+      <!-- Inputs to customize the two lists before visualizing -->
+      <div class="inputs">
+        <!-- Text field for the first sorted list values -->
+        <label>
+          List A (comma-separated):
+          <input id="inputA" type="text" value="1,2,4" />
+        </label>
+        <!-- Text field for the second sorted list values -->
+        <label>
+          List B (comma-separated):
+          <input id="inputB" type="text" value="1,3,4" />
+        </label>
+        <!-- Button to rebuild the lanes from the edited inputs -->
+        <button id="loadBtn">Load</button>
+      </div>
+
+      <!-- Buttons that control the step-through animation -->
+      <div class="controls">
+        <!-- Advances the merge by one comparison/move -->
+        <button id="nextBtn">Next</button>
+        <!-- Automatically runs steps with a slight delay between them -->
+        <button id="autoBtn">Auto Play</button>
+        <!-- Resets the state to the initial configuration -->
+        <button id="resetBtn">Reset</button>
+      </div>
+
+      <!-- Visual lane for list A (l1) -->
+      <div class="lane" id="laneA">
+        <!-- Label for the lane -->
+        <div class="label">List A</div>
+        <!-- Nodes will be appended here dynamically by JavaScript -->
+      </div>
+
+      <!-- Visual lane for list B (l2) -->
+      <div class="lane" id="laneB">
+        <!-- Label for the lane -->
+        <div class="label">List B</div>
+        <!-- Nodes will be appended here dynamically by JavaScript -->
+      </div>
+
+      <!-- Visual lane for the merged result -->
+      <div class="lane" id="laneMerged">
+        <!-- Label for the lane -->
+        <div class="label">Merged</div>
+        <!-- Nodes moved from A/B are appended here in sorted order -->
+      </div>
+
+      <!-- A small hint for the user about input format -->
+      <p class="note">Tip: Inputs must be sorted for the classic two-pointer merge to look correct.</p>
+    </div>
+
+    <!-- Inline script that powers the visualization -->
+    <script>
+      // Grab references to important DOM elements once at the top
+      const laneA = document.getElementById('laneA'); // Container for list A nodes
+      const laneB = document.getElementById('laneB'); // Container for list B nodes
+      const laneMerged = document.getElementById('laneMerged'); // Container for merged nodes
+
+      const inputA = document.getElementById('inputA'); // Text input for list A values
+      const inputB = document.getElementById('inputB'); // Text input for list B values
+
+      const nextBtn = document.getElementById('nextBtn'); // Button: perform next merge step
+      const autoBtn = document.getElementById('autoBtn'); // Button: run automatically
+      const resetBtn = document.getElementById('resetBtn'); // Button: reset to initial state
+      const loadBtn = document.getElementById('loadBtn'); // Button: rebuild lanes from inputs
+
+      let autoTimer = null; // Stores interval id for auto play, so we can stop it
+
+      // Helper to create a visual node element for a given numeric value
+      function makeNode(value) {
+        // Create a new div element that represents a list node
+        const el = document.createElement('div');
+        // Assign the base CSS class for nodes
+        el.className = 'node';
+        // Store the numeric value as text inside the box
+        el.textContent = value;
+        // Set a data attribute so we can read the value back in JS easily
+        el.dataset.value = String(value);
+        // Return the newly created DOM element to the caller
+        return el;
+      }
+
+      // Parse a comma-separated list (e.g., "1,2,4") into an array of numbers
+      function parseCSV(str) {
+        // Split on commas, trim whitespace, filter blanks, then map to numbers
+        return str
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean)
+          .map(Number);
+      }
+
+      // Remove highlight state from all nodes before setting a new one
+      function clearHighlights() {
+        // Query all nodes currently in the document
+        document.querySelectorAll('.node').forEach(n => n.classList.remove('highlight', 'dim'));
+      }
+
+      // Highlight the current nodes being compared, dim others for focus
+      function highlightHeads() {
+        // Clear any existing highlight/dim classes first
+        clearHighlights();
+        // Select the first real node in laneA (skip the label at index 0)
+        const headA = laneA.querySelector('.node');
+        // Select the first real node in laneB (skip the label at index 0)
+        const headB = laneB.querySelector('.node');
+        // If there is a head node in A, add the highlight class
+        if (headA) headA.classList.add('highlight');
+        // If there is a head node in B, add the highlight class
+        if (headB) headB.classList.add('highlight');
+        // Dim nodes that are not at the head to make the focus clearer
+        document.querySelectorAll('#laneA .node:not(.highlight), #laneB .node:not(.highlight)')
+          .forEach(n => n.classList.add('dim'));
+      }
+
+      // Build the lanes from two arrays of numbers
+      function buildLanes(arrA, arrB) {
+        // Remove all previous nodes from all three lanes (keeping the labels)
+        [laneA, laneB, laneMerged].forEach(lane => {
+          // Remove everything except the first child (the label)
+          while (lane.children.length > 1) lane.removeChild(lane.lastElementChild);
+        });
+        // Append nodes for each value in A to laneA
+        arrA.forEach(v => laneA.appendChild(makeNode(v)));
+        // Append nodes for each value in B to laneB
+        arrB.forEach(v => laneB.appendChild(makeNode(v)));
+        // Reset button states since we have fresh lanes
+        nextBtn.disabled = false;
+        autoBtn.disabled = false;
+        // Ensure highlights show the current heads after rebuild
+        highlightHeads();
+      }
+
+      // Perform one merge step: compare the heads and move the smaller (or equal) to merged
+      function stepOnce() {
+        // Pick the current head nodes from each lane if they exist
+        const headA = laneA.querySelector('.node');
+        const headB = laneB.querySelector('.node');
+
+        // If both lists are empty, there is nothing left to do
+        if (!headA && !headB) {
+          // Disable action buttons to signal completion
+          nextBtn.disabled = true;
+          autoBtn.disabled = true;
+          // Stop auto play if it was running
+          if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+          // No more steps, so we return early
+          return;
+        }
+
+        // If only list A has nodes left, move its head to merged
+        if (headA && !headB) {
+          // Append the head node of A to the merged lane
+          laneMerged.appendChild(headA);
+          // Update highlighting for the next comparison
+          highlightHeads();
+          // End this step
+          return;
+        }
+        // If only list B has nodes left, move its head to merged
+        if (!headA && headB) {
+          // Append the head node of B to the merged lane
+          laneMerged.appendChild(headB);
+          // Update highlighting for the next comparison
+          highlightHeads();
+          // End this step
+          return;
+        }
+
+        // If both heads exist, compare their numeric values
+        const aVal = Number(headA.dataset.value); // Convert A head value to number
+        const bVal = Number(headB.dataset.value); // Convert B head value to number
+
+        // Choose which head to move based on the classic <= rule (stable merge)
+        const toMove = (aVal <= bVal) ? headA : headB; // Pick smaller (or equal) node
+
+        // Add a tiny visual lift to the chosen node to emphasize movement
+        toMove.style.transform = 'translateY(-6px)';
+
+        // After a short delay, actually move the node to the merged lane
+        setTimeout(() => {
+          // Reset the transform after the visual cue
+          toMove.style.transform = '';
+          // Append the chosen node to the merged lane to simulate pointer reassignment
+          laneMerged.appendChild(toMove);
+          // Update which nodes are highlighted for the next comparison round
+          highlightHeads();
+        }, 180);
+      }
+
+      // Start or stop the auto play mode
+      function toggleAuto() {
+        // If already running, stop the interval and restore the button label
+        if (autoTimer) {
+          clearInterval(autoTimer); // Stop the repeated stepping
+          autoTimer = null; // Clear the stored timer id
+          autoBtn.textContent = 'Auto Play'; // Set the button text back
+          // Re-enable the manual step button when stopping auto mode
+          nextBtn.disabled = false;
+          // Return since we only wanted to stop
+          return;
+        }
+        // If not running, start an interval to call stepOnce repeatedly
+        autoBtn.textContent = 'Pause'; // Update the button text to indicate running
+        nextBtn.disabled = true; // Disable manual stepping to avoid conflicts
+        autoTimer = setInterval(() => {
+          // Execute a single step of the merge
+          stepOnce();
+          // If both inputs are consumed, stop automatically
+          const done = !laneA.querySelector('.node') && !laneB.querySelector('.node');
+          if (done) {
+            // Stop the interval when finished
+            clearInterval(autoTimer);
+            autoTimer = null;
+            // Restore button labels and states
+            autoBtn.textContent = 'Auto Play';
+            nextBtn.disabled = true;
+            autoBtn.disabled = true;
+          }
+        }, 500); // Delay between steps in milliseconds
+      }
+
+      // Reset the visualization to the current inputs without re-parsing
+      function resetLanes() {
+        // Rebuild the lanes from the current visual merged state back to inputs
+        const arrA = parseCSV(inputA.value); // Parse List A from the text field
+        const arrB = parseCSV(inputB.value); // Parse List B from the text field
+        // If auto play is running, stop it for a clean reset
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+        // Build fresh nodes again from the parsed values
+        buildLanes(arrA, arrB);
+        // Reset the auto button label in case it was toggled
+        autoBtn.textContent = 'Auto Play';
+      }
+
+      // Wire up the control buttons to their respective functions
+      nextBtn.addEventListener('click', stepOnce); // Advance a single step on click
+      autoBtn.addEventListener('click', toggleAuto); // Toggle auto play on click
+      resetBtn.addEventListener('click', resetLanes); // Reset lanes on click
+
+      // Rebuild from user-provided CSVs when clicking Load
+      loadBtn.addEventListener('click', () => {
+        // Parse the CSV strings from both inputs
+        const arrA = parseCSV(inputA.value);
+        const arrB = parseCSV(inputB.value);
+        // Stop auto play if it was currently running
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+        // Build the lanes anew from the provided arrays
+        buildLanes(arrA, arrB);
+        // Ensure the auto button label is correct after a rebuild
+        autoBtn.textContent = 'Auto Play';
+      });
+
+      // Initialize the page with the default input values on first load
+      buildLanes(parseCSV(inputA.value), parseCSV(inputB.value)); // Create nodes from defaults
+    </script>
+  </body>
+</html>

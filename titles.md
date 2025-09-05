@@ -1,1 +1,0 @@
-0ms ⏱️ | Optimal | Beats 100% | Sort + Greedy Trick ⚡
